@@ -25,7 +25,6 @@ public enum DashboardItem
     RefreshRate,
     DpiScale,
     Hdr,
-    OverDrive,
     TurnOffMonitors,
     Microphone,
     FlipToStart,

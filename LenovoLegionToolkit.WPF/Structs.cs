@@ -24,7 +24,6 @@ public readonly struct DashboardGroup(DashboardGroupType type, string? customNam
             DashboardItem.RefreshRate,
             DashboardItem.DpiScale,
             DashboardItem.Hdr,
-            DashboardItem.OverDrive,
             DashboardItem.TurnOffMonitors),
         new(DashboardGroupType.Other, null,
             DashboardItem.Microphone,
