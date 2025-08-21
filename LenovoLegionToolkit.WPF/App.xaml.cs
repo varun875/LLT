@@ -2,6 +2,7 @@
 using LenovoLegionToolkit.Lib.System;
 #endif
 using System;
+using System.Collections.Generic; // Required for List<T>
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
@@ -127,20 +128,26 @@ public partial class App
 
         AutomationPage.EnableHybridModeAutomation = flags.EnableHybridModeAutomation;
 
-        await LogSoftwareStatusAsync();
-        await InitPowerModeFeatureAsync();
-        await InitBatteryFeatureAsync();
-        await InitRgbKeyboardControllerAsync();
-        await InitSpectrumKeyboardControllerAsync();
-        await InitGpuOverclockControllerAsync();
-        await InitHybridModeAsync();
-        await InitAutomationProcessorAsync();
-        InitMacroController();
+        // Parallelize initialization tasks to improve startup time
+        var initializationTasks = new List<Task>
+        {
+            LogSoftwareStatusAsync(),
+            InitPowerModeFeatureAsync(),
+            InitBatteryFeatureAsync(),
+            InitRgbKeyboardControllerAsync(),
+            InitSpectrumKeyboardControllerAsync(),
+            InitGpuOverclockControllerAsync(),
+            InitHybridModeAsync(),
+            InitAutomationProcessorAsync()
+        };
 
-        await IoCContainer.Resolve<AIController>().StartIfNeededAsync();
-        await IoCContainer.Resolve<HWiNFOIntegration>().StartStopIfNeededAsync();
-        await IoCContainer.Resolve<IpcServer>().StartStopIfNeededAsync();
-        await IoCContainer.Resolve<BatteryDischargeRateMonitorService>().StartStopIfNeededAsync();
+        InitMacroController(); // MacroController can be initialized synchronously
+
+        // Start non-critical services in the background
+        _ = IoCContainer.Resolve<AIController>().StartIfNeededAsync();
+        _ = IoCContainer.Resolve<HWiNFOIntegration>().StartStopIfNeededAsync();
+        _ = IoCContainer.Resolve<IpcServer>().StartStopIfNeededAsync();
+        _ = IoCContainer.Resolve<BatteryDischargeRateMonitorService>().StartStopIfNeededAsync();
 
 #if !DEBUG
         Autorun.Validate();
@@ -175,6 +182,9 @@ public partial class App
 
             mainWindow.Show();
         }
+
+        // Wait for all critical initialization tasks to complete
+        await Task.WhenAll(initializationTasks);
 
         if (Log.Instance.IsTraceEnabled)
             Log.Instance.Trace($"Start up complete");
