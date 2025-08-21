@@ -327,7 +327,7 @@ public static class BootLogo
     private static void ThrowIfImageInvalid(BootLogoInfo info, string sourcePath)
     {
         if (Log.Instance.IsTraceEnabled)
-            Log.Instance.Trace($"Validating image... [sourcePath={sourcePath}, sourcePath={sourcePath}, enabled={info.Enabled}, supportedWidth={info.SupportedWidth}, supportedHeight={info.SupportedHeight}, supportedFormat={(int)info.SupportedFormat}]");
+            Log.Instance.Trace($"Validating image... [sourcePath={sourcePath}, enabled={info.Enabled}, supportedWidth={info.SupportedWidth}, supportedHeight={info.SupportedHeight}, supportedFormat={(int)info.SupportedFormat}]");
 
         using var image = Image.FromFile(sourcePath);
 
@@ -348,7 +348,7 @@ public static class BootLogo
         }
 
         if (Log.Instance.IsTraceEnabled)
-            Log.Instance.Trace($"Image valid. [sourcePath={sourcePath}, sourcePath={sourcePath}, enabled={info.Enabled}, supportedWidth={info.SupportedWidth}, supportedHeight={info.SupportedHeight}, supportedFormat={(int)info.SupportedFormat}]");
+            Log.Instance.Trace($"Image valid. [sourcePath={sourcePath}, enabled={info.Enabled}, supportedWidth={info.SupportedWidth}, supportedHeight={info.SupportedHeight}, supportedFormat={(int)info.SupportedFormat}]");
     }
 
     private static char GetUnusedDriveLetter()

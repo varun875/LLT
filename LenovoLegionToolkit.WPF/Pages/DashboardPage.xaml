@@ -13,33 +13,33 @@
     Scrollable="True"
     SizeChanged="DashboardPage_SizeChanged">
 
-    <!-- All extra resources and background colors have been removed to restore the default look -->
+	<!-- All extra resources and background colors have been removed to restore the default look -->
 
-    <controls:LoadableControl
+	<controls:LoadableControl
         x:Name="_loader"
         Margin="0,0,0,12"
         IndicatorMargin="0,64,0,0">
 
-        <!-- Back to the simple StackPanel layout -->
-        <StackPanel Margin="16,0,16,0">
-            
-            <!-- A simple header like in your screenshot -->
-            <StackPanel Margin="0,0,0,16" Orientation="Horizontal">
-                <wpfui:SymbolIcon FontSize="18" Symbol="Temperature24" />
-                <TextBlock
+		<!-- Back to the simple StackPanel layout -->
+		<StackPanel Margin="16,0,16,0">
+
+			<!-- A simple header like in your screenshot -->
+			<StackPanel Margin="0,0,0,16" Orientation="Horizontal">
+				<wpfui:SymbolIcon FontSize="18" Symbol="Temperature24" />
+				<TextBlock
                     Margin="8,0,0,0"
                     VerticalAlignment="Center"
                     FontSize="16"
                     Text="System Sensors" />
-            </StackPanel>
-            
-            <!-- The sensor control, as it was originally -->
-            <dashboard:SensorsControl x:Name="_sensors" />
+			</StackPanel>
 
-            <!-- The content grid, as it was originally -->
-            <Grid x:Name="_content" />
-            
-        </StackPanel>
-    </controls:LoadableControl>
+			<!-- The sensor control, as it was originally -->
+			<dashboard:SensorsControl x:Name="_sensors" />
+
+			<!-- The content grid, as it was originally -->
+			<Grid x:Name="_content" />
+
+		</StackPanel>
+	</controls:LoadableControl>
 
 </wpfui:UiPage>

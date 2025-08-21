@@ -527,6 +527,7 @@ public enum BootLogoFormat : byte
     Jpeg = 0x1,
     Bmp = 0x10,
     Png = 0x20,
+    Gif = 0x40 // Added GIF support
 }
 
 [StructLayout(LayoutKind.Sequential, Pack = 1)]

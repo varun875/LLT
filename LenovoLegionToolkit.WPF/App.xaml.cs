@@ -37,6 +37,8 @@ using Application = System.Windows.Application;
 using MessageBox = System.Windows.MessageBox;
 using WinFormsApp = System.Windows.Forms.Application;
 using WinFormsHighDpiMode = System.Windows.Forms.HighDpiMode;
+using System.Runtime.InteropServices; // Added for Fluent design P/Invoke
+using System.Runtime.CompilerServices; // Required for FormattableStringFactory
 
 namespace LenovoLegionToolkit.WPF;
 
@@ -152,6 +154,9 @@ public partial class App
         };
         MainWindow = mainWindow;
 
+        // Apply Fluent design (Mica/System Backdrop/Acrylic fallback) once window handle is created
+        mainWindow.SourceInitialized += (_, _) => ApplyFluentDesign(mainWindow);
+
         IoCContainer.Resolve<ThemeManager>().Apply();
 
         if (flags.Minimized)
@@ -193,6 +198,7 @@ public partial class App
             WindowStartupLocation = WindowStartupLocation.CenterScreen
         };
         MainWindow = mainWindow;
+        mainWindow.SourceInitialized += (_, _) => ApplyFluentDesign(mainWindow); // Ensure fluent design on restart
         mainWindow.Show();
     }
 
@@ -596,5 +602,148 @@ public partial class App
     {
         var controller = IoCContainer.Resolve<MacroController>();
         controller.Start();
+    }
+
+    // ---------------- Fluent Design Helpers ----------------
+    private enum DWMSBT
+    {
+        DWMSBT_NONE = 0,
+        DWMSBT_MAINWINDOW = 2,
+        DWMSBT_TRANSIENTWINDOW = 3,
+        DWMSBT_TABBEDWINDOW = 4
+    }
+
+    private const int DWMWA_USE_IMMERSIVE_DARK_MODE = 20; // May be 20 or 19 depending on OS build but 20 works for 21H2+
+    private const int DWMWA_SYSTEMBACKDROP_TYPE = 38; // Windows 11 22H2+
+    private const int DWMWA_MICA_EFFECT = 1029; // Windows 11 pre-22H2
+
+    // Acrylic fallback structures
+    private enum AccentState
+    {
+        ACCENT_DISABLED = 0,
+        ACCENT_ENABLE_GRADIENT = 1,
+        ACCENT_ENABLE_TRANSPARENTGRADIENT = 2,
+        ACCENT_ENABLE_BLURBEHIND = 3,
+        ACCENT_ENABLE_ACRYLICBLURBEHIND = 4,
+        ACCENT_ENABLE_HOSTBACKDROP = 5,
+        ACCENT_INVALID_STATE = 6
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct AccentPolicy
+    {
+        public AccentState AccentState;
+        public int AccentFlags;
+        public int GradientColor;
+        public int AnimationId;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct WindowCompositionAttributeData
+    {
+        public int Attribute;
+        public IntPtr Data;
+        public int SizeOfData;
+    }
+
+    private const int WCA_ACCENT_POLICY = 19;
+
+    [DllImport("dwmapi.dll")]
+    private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
+
+    [DllImport("user32.dll")]
+    private static extern int SetWindowCompositionAttribute(IntPtr hwnd, ref WindowCompositionAttributeData data);
+
+    private static void ApplyFluentDesign(Window window)
+    {
+        try
+        {
+            var handle = new WindowInteropHelper(window).Handle;
+            if (handle == IntPtr.Zero)
+                return;
+
+            // Dark mode hint
+            int useDark = 1;
+            _ = DwmSetWindowAttribute(handle, DWMWA_USE_IMMERSIVE_DARK_MODE, ref useDark, sizeof(int));
+
+            bool applied = false;
+
+            // Try Windows 11 22H2+ system backdrop
+            try
+            {
+                int backdrop = (int)DWMSBT.DWMSBT_MAINWINDOW;
+                if (Environment.OSVersion.Version.Build >= 22621)
+                {
+                    if (DwmSetWindowAttribute(handle, DWMWA_SYSTEMBACKDROP_TYPE, ref backdrop, sizeof(int)) == 0)
+                        applied = true;
+                }
+            }
+            catch { /* ignore */ }
+
+            // Try Windows 11 (pre 22H2) Mica effect
+            if (!applied && Environment.OSVersion.Version.Build >= 22000)
+            {
+                try
+                {
+                    int enableMica = 1;
+                    if (DwmSetWindowAttribute(handle, DWMWA_MICA_EFFECT, ref enableMica, sizeof(int)) == 0)
+                        applied = true;
+                }
+                catch { /* ignore */ }
+            }
+
+            // Fallback to Acrylic (Windows 10)
+            if (!applied)
+            {
+                ApplyAcrylicFallback(handle);
+                applied = true;
+            }
+
+            if (Log.Instance.IsTraceEnabled)
+                Log.Instance.Trace(FormattableStringFactory.Create(applied ? "Fluent design applied (Mica/SystemBackdrop/Acrylic)." : "Fluent design not applied."));
+        }
+        catch (Exception ex)
+        {
+            if (Log.Instance.IsTraceEnabled)
+                Log.Instance.Trace(FormattableStringFactory.Create("Failed to apply fluent design."), ex);
+        }
+    }
+
+    private static void ApplyAcrylicFallback(IntPtr hwnd)
+    {
+        try
+        {
+            // ARGB: first byte is alpha. 0xCC (~80% opaque) dark gray tint.
+            var gradientColor = unchecked((int)0xCC202020);
+            var accent = new AccentPolicy
+            {
+                AccentState = AccentState.ACCENT_ENABLE_ACRYLICBLURBEHIND,
+                AccentFlags = 2, // default flags (can tweak for noise / host backdrop)
+                GradientColor = gradientColor,
+                AnimationId = 0
+            };
+            var accentSize = Marshal.SizeOf(accent);
+            var accentPtr = Marshal.AllocHGlobal(accentSize);
+            try
+            {
+                Marshal.StructureToPtr(accent, accentPtr, false);
+                var data = new WindowCompositionAttributeData
+                {
+                    Attribute = WCA_ACCENT_POLICY,
+                    Data = accentPtr,
+                    SizeOfData = accentSize
+                };
+                _ = SetWindowCompositionAttribute(hwnd, ref data);
+            }
+            finally
+            {
+                Marshal.FreeHGlobal(accentPtr);
+            }
+        }
+        catch (Exception ex)
+        {
+            if (Log.Instance.IsTraceEnabled)
+                Log.Instance.Trace(FormattableStringFactory.Create("Failed to apply Acrylic fallback."), ex);
+        }
     }
 }
