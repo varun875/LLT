@@ -237,11 +237,14 @@
                                 Focusable="False"
                                 ItemsSource="{TemplateBinding Items}"
                                 KeyboardNavigation.DirectionalNavigation="Contained"
+                                VirtualizingPanel.IsVirtualizing="True"
+                                VirtualizingPanel.VirtualizationMode="Recycling"
+                                ScrollViewer.CanContentScroll="True"
                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                 ScrollViewer.VerticalScrollBarVisibility="Disabled">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
-                                        <StackPanel
+                                        <VirtualizingStackPanel
                                             MinWidth="0"
                                             Margin="0"
                                             HorizontalAlignment="Left" />
@@ -254,11 +257,14 @@
                                 Focusable="False"
                                 ItemsSource="{TemplateBinding Footer}"
                                 KeyboardNavigation.DirectionalNavigation="Contained"
+                                VirtualizingPanel.IsVirtualizing="True"
+                                VirtualizingPanel.VirtualizationMode="Recycling"
+                                ScrollViewer.CanContentScroll="True"
                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                 ScrollViewer.VerticalScrollBarVisibility="Disabled">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
-                                        <StackPanel
+                                        <VirtualizingStackPanel
                                             MinWidth="0"
                                             Margin="0"
                                             HorizontalAlignment="Left" />

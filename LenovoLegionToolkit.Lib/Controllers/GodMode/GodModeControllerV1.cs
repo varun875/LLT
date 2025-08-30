@@ -42,7 +42,7 @@ public class GodModeControllerV1(
         var gpuConfigurableTgp = preset.GPUConfigurableTGP;
         var gpuTemperatureLimit = preset.GPUTemperatureLimit;
         var fanTable = preset.FanTable ?? await GetDefaultFanTableAsync().ConfigureAwait(false);
-        var fanFullSpeed = preset.FanFullSpeed ?? false;
+    var fanFullSpeed = preset.FanFullSpeed ?? false;
 
         if (cpuLongTermPowerLimit is not null)
         {
@@ -249,6 +249,8 @@ public class GodModeControllerV1(
                 throw;
             }
         }
+
+    // Overclocking application removed
 
         RaisePresetChanged(presetId);
 
@@ -675,7 +677,10 @@ public class GodModeControllerV1(
                     GPUConfigurableTGP = d.GPUConfigurableTGP,
                     GPUTemperatureLimit = d.GPUTemperatureLimit,
                     FanTable = defaultFanTableAsync,
-                    FanFullSpeed = false
+                    FanFullSpeed = false,
+                    CPUOverclockMhz = 0,
+                    GPUOverclockMhz = 0,
+                    MemoryOverclockMhz = 0
                 };
                 return (powerMode, defaults);
             })
@@ -685,5 +690,40 @@ public class GodModeControllerV1(
     }
 
     #endregion
+
+    private Task ApplyCPUOverclockAsync(int mhz)
+    {
+        // TODO: Implement CPU overclocking
+        if (Log.Instance.IsTraceEnabled)
+            Log.Instance.Trace($"CPU overclocking not yet implemented. Requested: {mhz} MHz");
+
+        // Placeholder - this would require hardware-specific implementation
+        // For now, just log that it's not supported
+        return Task.CompletedTask;
+    }
+
+    private async Task ApplyGPUOverclockAsync(int mhz)
+    {
+        var gpuController = IoCContainer.Resolve<GPUOverclockController>();
+        var (enabled, info) = gpuController.GetState();
+        
+        // Update the GPU overclock info with the new core delta
+        var newInfo = new GPUOverclockInfo(mhz, info.MemoryDeltaMhz);
+        gpuController.SaveState(enabled, newInfo);
+        
+        await gpuController.ApplyStateAsync().ConfigureAwait(false);
+    }
+
+    private async Task ApplyMemoryOverclockAsync(int mhz)
+    {
+        var gpuController = IoCContainer.Resolve<GPUOverclockController>();
+        var (enabled, info) = gpuController.GetState();
+        
+        // Update the GPU overclock info with the new memory delta
+        var newInfo = new GPUOverclockInfo(info.CoreDeltaMhz, mhz);
+        gpuController.SaveState(enabled, newInfo);
+        
+        await gpuController.ApplyStateAsync().ConfigureAwait(false);
+    }
 
 }

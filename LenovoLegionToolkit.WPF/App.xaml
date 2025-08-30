@@ -12,7 +12,6 @@
 			<ResourceDictionary.MergedDictionaries>
 				<wpfui:ControlsDictionary />
 				<wpfui:ThemesDictionary Theme="Dark" />
-				<ResourceDictionary Source="pack://application:,,,/ColorPicker;component/Styles/DefaultColorPickerStyle.xaml" />
 				<ResourceDictionary Source="pack://application:,,,/Styles/Badge.xaml" />
 				<ResourceDictionary Source="pack://application:,,,/Styles/CardAction.xaml" />
 				<ResourceDictionary Source="pack://application:,,,/Styles/CardControl.xaml" />

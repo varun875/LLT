@@ -104,8 +104,9 @@ public partial class App
         if (Log.Instance.IsTraceEnabled)
             Log.Instance.Trace($"Starting... [version={Assembly.GetEntryAssembly()?.GetName().Version}, build={Assembly.GetEntryAssembly()?.GetBuildDateTimeString()}, os={Environment.OSVersion}, dotnet={Environment.Version}]");
 
-        WinFormsApp.SetHighDpiMode(WinFormsHighDpiMode.PerMonitorV2);
-        RenderOptions.ProcessRenderMode = RenderMode.SoftwareOnly;
+    WinFormsApp.SetHighDpiMode(WinFormsHighDpiMode.PerMonitorV2);
+    // Prefer hardware-accelerated rendering for smoother UI (fallback handled by WPF if unavailable)
+    RenderOptions.ProcessRenderMode = RenderMode.Default;
 
         IoCContainer.Initialize(
             new Lib.IoCModule(),
@@ -135,10 +136,7 @@ public partial class App
             InitPowerModeFeatureAsync(),
             InitBatteryFeatureAsync(),
             InitRgbKeyboardControllerAsync(),
-            InitSpectrumKeyboardControllerAsync(),
-            InitGpuOverclockControllerAsync(),
-            InitHybridModeAsync(),
-            InitAutomationProcessorAsync()
+            InitHybridModeAsync()
         };
 
         InitMacroController(); // MacroController can be initialized synchronously
@@ -166,7 +164,7 @@ public partial class App
 
         IoCContainer.Resolve<ThemeManager>().Apply();
 
-        if (flags.Minimized)
+    if (flags.Minimized)
         {
             if (Log.Instance.IsTraceEnabled)
                 Log.Instance.Trace($"Sending MainWindow to tray...");
@@ -182,6 +180,21 @@ public partial class App
 
             mainWindow.Show();
         }
+
+        // Defer heavy, non-critical initializations to after the window is shown to improve perceived startup
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                await Task.Delay(3000);
+                await Task.WhenAll(
+                    InitSpectrumKeyboardControllerAsync(),
+                    InitGpuOverclockControllerAsync(),
+                    InitAutomationProcessorAsync()
+                );
+            }
+            catch { /* ignored */ }
+        });
 
         // Wait for all critical initialization tasks to complete
         await Task.WhenAll(initializationTasks);

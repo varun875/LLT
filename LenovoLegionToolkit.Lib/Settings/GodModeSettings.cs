@@ -27,6 +27,9 @@ public class GodModeSettings() : AbstractSettings<GodModeSettings.GodModeSetting
             public bool? FanFullSpeed { get; init; }
             public int? MinValueOffset { get; init; }
             public int? MaxValueOffset { get; init; }
+            public int? CPUOverclockMhz { get; init; }
+            public int? GPUOverclockMhz { get; init; }
+            public int? MemoryOverclockMhz { get; init; }
         }
 
         public Guid ActivePresetId { get; set; }

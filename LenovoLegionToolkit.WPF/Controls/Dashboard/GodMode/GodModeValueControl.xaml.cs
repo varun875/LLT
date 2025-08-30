@@ -131,7 +131,8 @@ public partial class GodModeValueControl
             _slider.TickFrequency = value.Step;
             _slider.Value = value.Value;
 
-            _sliderLabel.ContentStringFormat = $"{0} {Unit}";
+            // Ensure the format string uses placeholder syntax for binding: "{0} <Unit>"
+            _sliderLabel.ContentStringFormat = $"{{0}} {Unit}";
 
             _comboBox.Items.Clear();
             _comboBox.SelectedItem = null;

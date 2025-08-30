@@ -7,6 +7,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using LenovoLegionToolkit.Lib;
 using LenovoLegionToolkit.Lib.Controllers.GodMode;
+using LenovoLegionToolkit.Lib.Controllers;
 using LenovoLegionToolkit.Lib.Extensions;
 using LenovoLegionToolkit.Lib.Features;
 using LenovoLegionToolkit.Lib.SoftwareDisabler;
@@ -21,6 +22,7 @@ public partial class GodModeSettingsWindow
 {
     private readonly PowerModeFeature _powerModeFeature = IoCContainer.Resolve<PowerModeFeature>();
     private readonly GodModeController _godModeController = IoCContainer.Resolve<GodModeController>();
+    // Overclocking removed from God Mode UI
 
     private readonly VantageDisabler _vantageDisabler = IoCContainer.Resolve<VantageDisabler>();
     private readonly LegionZoneDisabler _legionZoneDisabler = IoCContainer.Resolve<LegionZoneDisabler>();
@@ -175,6 +177,8 @@ public partial class GodModeSettingsWindow
         _gpuTotalProcessingPowerTargetOnAcOffsetFromBaselineControl.Set(preset.GPUTotalProcessingPowerTargetOnAcOffsetFromBaseline);
         _gpuToCpuDynamicBoostControl.Set(preset.GPUToCPUDynamicBoost);
 
+    // Overclock controls removed
+
         var fanTableInfo = preset.FanTableInfo;
         if (fanTableInfo.HasValue)
         {
@@ -289,6 +293,8 @@ public partial class GodModeSettingsWindow
 
         if (_gpuToCpuDynamicBoostControl.Visibility == Visibility.Visible && defaults.GPUToCPUDynamicBoost is { } gpuToCPUDynamicBoost)
             _gpuToCpuDynamicBoostControl.Value = gpuToCPUDynamicBoost;
+
+    // Overclock defaults removed
 
         if (_fanCurveCardControl.Visibility == Visibility.Visible && defaults.FanTable is { } fanTable)
         {

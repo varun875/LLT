@@ -32,6 +32,7 @@ public partial class ColorPickerControl
         InitializeComponent();
 
         SelectedColor = Colors.Aqua;
+            _colorPickerResourcesLoaded = false; // Initialize the resource loaded flag
     }
 
     private void Button_Click(object sender, RoutedEventArgs e)
@@ -40,6 +41,29 @@ public partial class ColorPickerControl
         e.Handled = true;
     }
 
+        private static bool _colorPickerResourcesLoaded;
+
+        private void OnPopupLoaded(object sender, RoutedEventArgs e)
+        {
+            if (_colorPickerResourcesLoaded)
+                return;
+
+            try
+            {
+                var dict = new ResourceDictionary
+                {
+                    Source = new Uri("pack://application:,,,/ColorPicker;component/Styles/DefaultColorPickerStyle.xaml", UriKind.Absolute)
+                };
+
+                // Merge into the control's resource scope so only this feature pulls it in
+                Resources.MergedDictionaries.Add(dict);
+                _colorPickerResourcesLoaded = true;
+            }
+            catch
+            {
+                // ignore missing style pack issues; control has defaults
+            }
+        }
     private void ColorPicker_MouseUp(object sender, MouseButtonEventArgs e)
     {
         e.Handled = true;

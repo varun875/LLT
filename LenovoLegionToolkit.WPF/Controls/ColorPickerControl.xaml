@@ -13,7 +13,7 @@
             Height="38"
             Click="Button_Click" />
 
-        <Popup
+    <Popup
             x:Name="_popup"
             Width="250"
             AllowsTransparency="True"
@@ -27,7 +27,7 @@
                 BorderThickness="0.5"
                 ClipToBounds="True"
                 CornerRadius="8">
-                <StackPanel>
+        <StackPanel Loaded="OnPopupLoaded">
                     <cp:SquarePicker
                         x:Name="_colorPicker"
                         Width="200"

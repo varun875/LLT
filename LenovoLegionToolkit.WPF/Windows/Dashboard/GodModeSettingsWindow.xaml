@@ -220,6 +220,8 @@
                         Description="{x:Static resources:Resource.GodModeSettingsWindow_GPU_ToCpuDynamicBoostControl_Description}"
                         Unit="W" />
 
+                    
+
                     <TextBlock
                         x:Name="_fanSectionTitle"
                         Margin="0,16,0,24"

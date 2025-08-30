@@ -294,6 +294,9 @@ public readonly struct GodModeDefaults
     public int? GPUToCPUDynamicBoost { get; init; }
     public FanTable? FanTable { get; init; }
     public bool? FanFullSpeed { get; init; }
+    public int? CPUOverclockMhz { get; init; }
+    public int? GPUOverclockMhz { get; init; }
+    public int? MemoryOverclockMhz { get; init; }
 
     public override string ToString() =>
         $"{nameof(CPULongTermPowerLimit)}: {CPULongTermPowerLimit}," +
@@ -309,7 +312,10 @@ public readonly struct GodModeDefaults
         $" {nameof(GPUTotalProcessingPowerTargetOnAcOffsetFromBaseline)}: {GPUTotalProcessingPowerTargetOnAcOffsetFromBaseline}," +
         $" {nameof(GPUToCPUDynamicBoost)}: {GPUToCPUDynamicBoost}," +
         $" {nameof(FanTable)}: {FanTable}," +
-        $" {nameof(FanFullSpeed)}: {FanFullSpeed}";
+        $" {nameof(FanFullSpeed)}: {FanFullSpeed}," +
+        $" {nameof(CPUOverclockMhz)}: {CPUOverclockMhz}," +
+        $" {nameof(GPUOverclockMhz)}: {GPUOverclockMhz}," +
+        $" {nameof(MemoryOverclockMhz)}: {MemoryOverclockMhz}";
 }
 
 public readonly struct GodModeState
@@ -337,6 +343,9 @@ public readonly struct GodModePreset
     public bool? FanFullSpeed { get; init; }
     public int? MinValueOffset { get; init; }
     public int? MaxValueOffset { get; init; }
+    public int? CPUOverclockMhz { get; init; }
+    public int? GPUOverclockMhz { get; init; }
+    public int? MemoryOverclockMhz { get; init; }
 
     public override string ToString() =>
         $"{nameof(Name)}: {Name}," +
@@ -355,7 +364,10 @@ public readonly struct GodModePreset
         $" {nameof(FanTableInfo)}: {FanTableInfo}," +
         $" {nameof(FanFullSpeed)}: {FanFullSpeed}," +
         $" {nameof(MinValueOffset)}: {MinValueOffset}," +
-        $" {nameof(MaxValueOffset)}: {MaxValueOffset}";
+        $" {nameof(MaxValueOffset)}: {MaxValueOffset}," +
+        $" {nameof(CPUOverclockMhz)}: {CPUOverclockMhz}," +
+        $" {nameof(GPUOverclockMhz)}: {GPUOverclockMhz}," +
+        $" {nameof(MemoryOverclockMhz)}: {MemoryOverclockMhz}";
 }
 
 public readonly struct GPUStatus(GPUState state, string? performanceState, List<Process> processes)

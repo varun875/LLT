@@ -40,6 +40,8 @@ public class GodModeControllerV2(
 
         var (presetId, preset) = await GetActivePresetAsync().ConfigureAwait(false);
 
+    // Overclocking settings removed from God Mode
+
         var settings = new Dictionary<CapabilityID, StepperValue?>
         {
             { CapabilityID.CPULongTermPowerLimit, preset.CPULongTermPowerLimit },
@@ -186,6 +188,8 @@ public class GodModeControllerV2(
                 throw;
             }
         }
+
+    // Overclocking application removed
 
         RaisePresetChanged(presetId);
 
@@ -430,5 +434,40 @@ public class GodModeControllerV2(
     private static Task SetFanFullSpeedAsync(bool enabled) => WMI.LenovoOtherMethod.SetFeatureValueAsync(CapabilityID.FanFullSpeed, enabled ? 1 : 0);
 
     #endregion
+
+    private Task ApplyCPUOverclockAsync(int mhz)
+    {
+        // TODO: Implement CPU overclocking
+        if (Log.Instance.IsTraceEnabled)
+            Log.Instance.Trace($"CPU overclocking not yet implemented. Requested: {mhz} MHz");
+
+        // Placeholder - this would require hardware-specific implementation
+        // For now, just log that it's not supported
+        return Task.CompletedTask;
+    }
+
+    private async Task ApplyGPUOverclockAsync(int mhz)
+    {
+        var gpuController = IoCContainer.Resolve<GPUOverclockController>();
+        var (enabled, info) = gpuController.GetState();
+        
+        // Update the GPU overclock info with the new core delta
+        var newInfo = new GPUOverclockInfo(mhz, info.MemoryDeltaMhz);
+        gpuController.SaveState(enabled, newInfo);
+        
+        await gpuController.ApplyStateAsync().ConfigureAwait(false);
+    }
+
+    private async Task ApplyMemoryOverclockAsync(int mhz)
+    {
+        var gpuController = IoCContainer.Resolve<GPUOverclockController>();
+        var (enabled, info) = gpuController.GetState();
+        
+        // Update the GPU overclock info with the new memory delta
+        var newInfo = new GPUOverclockInfo(info.CoreDeltaMhz, mhz);
+        gpuController.SaveState(enabled, newInfo);
+        
+        await gpuController.ApplyStateAsync().ConfigureAwait(false);
+    }
 
 }
