@@ -104,9 +104,14 @@ public partial class App
         if (Log.Instance.IsTraceEnabled)
             Log.Instance.Trace($"Starting... [version={Assembly.GetEntryAssembly()?.GetName().Version}, build={Assembly.GetEntryAssembly()?.GetBuildDateTimeString()}, os={Environment.OSVersion}, dotnet={Environment.Version}]");
 
+<<<<<<< Updated upstream
     WinFormsApp.SetHighDpiMode(WinFormsHighDpiMode.PerMonitorV2);
     // Prefer hardware-accelerated rendering for smoother UI (fallback handled by WPF if unavailable)
     RenderOptions.ProcessRenderMode = RenderMode.Default;
+=======
+        WinFormsApp.SetHighDpiMode(WinFormsHighDpiMode.PerMonitorV2);
+        RenderOptions.ProcessRenderMode = RenderMode.Default;
+>>>>>>> Stashed changes
 
         IoCContainer.Initialize(
             new Lib.IoCModule(),
